@@ -1,0 +1,32 @@
+{
+  "name": "swarm-puck-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "generate": "nuxt generate",
+    "build": "nuxt build", 
+    "start": "nuxt start",
+    "heroku-postbuild": "npm run build"
+  },
+  "dependencies": {
+    "core-js": "^3.25.3",
+    "mathjs": "^13.1.1",
+    "nuxt": "^2.18.1",
+    "socket.io-client": "^4.8.0",
+    "vue": "^2.7.16",
+    "vue-server-renderer": "^2.7.10",
+    "vue-template-compiler": "^2.7.10"
+  },
+  "devDependencies": {
+    "css-loader": "^4.3.0",
+    "vue-loader": "^15.11.1",
+    "webpack": "^4.47.0",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^4.15.2"
+  },
+  "engines": {
+    "node": "20.x",
+    "npm": "10.x"
+  }
+}

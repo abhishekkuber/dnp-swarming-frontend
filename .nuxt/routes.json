@@ -1,0 +1,50 @@
+[
+  {
+    "name": "addpoi",
+    "path": "/addpoi",
+    "component": "/Users/abhishekkuber/Desktop/TU Delft/JIP/Swarming Games/frontend/pages/addpoi.vue",
+    "chunkName": "pages/addpoi"
+  },
+  {
+    "name": "homepage",
+    "path": "/homepage",
+    "component": "/Users/abhishekkuber/Desktop/TU Delft/JIP/Swarming Games/frontend/pages/homepage.vue",
+    "chunkName": "pages/homepage"
+  },
+  {
+    "name": "leaderboard",
+    "path": "/leaderboard",
+    "component": "/Users/abhishekkuber/Desktop/TU Delft/JIP/Swarming Games/frontend/pages/leaderboard.vue",
+    "chunkName": "pages/leaderboard"
+  },
+  {
+    "name": "poiinformation",
+    "path": "/poiinformation",
+    "component": "/Users/abhishekkuber/Desktop/TU Delft/JIP/Swarming Games/frontend/pages/poiinformation.vue",
+    "chunkName": "pages/poiinformation"
+  },
+  {
+    "name": "skeleton",
+    "path": "/skeleton",
+    "component": "/Users/abhishekkuber/Desktop/TU Delft/JIP/Swarming Games/frontend/pages/skeleton.vue",
+    "chunkName": "pages/skeleton"
+  },
+  {
+    "name": "swarming",
+    "path": "/swarming",
+    "component": "/Users/abhishekkuber/Desktop/TU Delft/JIP/Swarming Games/frontend/pages/swarming.vue",
+    "chunkName": "pages/swarming"
+  },
+  {
+    "name": "swarmresults",
+    "path": "/swarmresults",
+    "component": "/Users/abhishekkuber/Desktop/TU Delft/JIP/Swarming Games/frontend/pages/swarmresults.vue",
+    "chunkName": "pages/swarmresults"
+  },
+  {
+    "name": "index",
+    "path": "/",
+    "component": "/Users/abhishekkuber/Desktop/TU Delft/JIP/Swarming Games/frontend/pages/index.vue",
+    "chunkName": "pages/index"
+  }
+]
