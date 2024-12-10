@@ -11,23 +11,23 @@
       <button class="how-to-swarm-button" @click="howToSwarm">Hoe werkt het?</button>
       <button class="add-new-poi-button" @click="addNewPOI">Voeg nieuwe informatie toe</button>
       <button class="leaderboard" @click="goToLeaderboard">Top 10</button>
-      <!-- <button class="newbucket" @click="goToNewBucket">new bucket</button> -->
+      <button class="joinroom1" @click="joinRoom('room1')">Join Room 1</button>
+      <button class="joinroom2" @click="joinRoom('room2')">Join Room 2</button>
+      <button class="joinroom3" @click="joinRoom('room3')">Join Room 3</button>
     </div>
 
     <!-- Popup Modal for Waiting Room -->
     <div v-if="showPopup" class="modal-overlay">
       <div class="modal-content">
         <h2>Wachten tot andere Swarmers zich aansluiten...</h2>
-        <p>Verbonden gebruikers: {{ connectedUsers }}</p>
-        <button class="cancel-button" @click="closePopup">Annuleren</button>
+        <p>Verbonden gebruikers in {{ currentRoom }}: {{ connectedUsers }}</p>
+        <button class="cancel-button" @click="leaveRoom">Annuleren</button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-
-// import { io } from 'socket.io-client';
 import { createConnection } from '../utils/socket';
 
 export default {
@@ -37,7 +37,8 @@ export default {
       connectedUsers: 0, // Track the number of connected users
       socket: null,
       firstName: '',
-      lastName: ''
+      lastName: '',
+      currentRoom: '' // Track the current room
     };
   },
   methods: {
@@ -45,22 +46,27 @@ export default {
       this.showPopup = true;  // Show the waiting popup
       this.socket.emit('join-waiting-room');  // Emit an event to join the waiting room
     },
-    addNewPOI(){
+    joinRoom(room) {
+      console.log(`Joining ${room}`);
+      this.currentRoom = room;
+      this.showPopup = true;  // Show the waiting popup
+      this.socket.emit('join-room', room);
+    },
+    leaveRoom() {
+      this.showPopup = false;  // Close the popup
+      this.socket.emit('leave-room', this.currentRoom);
+      this.currentRoom = '';
+    },
+    addNewPOI() {
       this.$router.push({
         name: 'addpoi',
         params: { firstName: this.firstName, lastName: this.lastName }
       }); 
     },
-    closePopup() {
-      this.showPopup = false;  // Close the popup
-      this.socket.emit('leave-waiting-room');
-    },
     howToSwarm() {
-      // window.open('https://www.youtube.com/watch?v=_GZlJGERbvE&list=RD_GZlJGERbvE&start_radio=1', '_blank');
       window.open('https://www.youtube.com/watch?v=_vWc9B-ovzQ', '_blank');
-      // alert('Here is how you swarm...');
     },
-    goToLeaderboard(){
+    goToLeaderboard() {
       this.$router.push({
         name: 'leaderboard',
         params: { firstName: this.firstName, lastName: this.lastName }
@@ -68,12 +74,13 @@ export default {
     },
     setupSocket() {
       console.log('PRINTING FROM THE SETUP SOCKET FUNCTION');
-      // this.socket = getSocket();
       console.log('Homepage socket : ', this.socket.id);
 
-      // Listen for updates to the user count
-      this.socket.on('update-user-count', (count) => {
-        this.connectedUsers = count;  // Update the user count in real-time
+      // Listen for updates to the user count in the current room
+      this.socket.on('update-room-user-count', (data) => {
+        if (data.room === this.currentRoom) {
+          this.connectedUsers = data.count;  // Update the user count in real-time
+        }
       });
 
       // Once enough users have joined, redirect to the poi page
@@ -88,6 +95,7 @@ export default {
             userCount: payload.userCount,
             firstName: this.firstName,
             lastName: this.lastName,
+            room: this.currentRoom
           }
         });  // Redirect to the poi page
       });
@@ -96,11 +104,6 @@ export default {
       this.socket.on('disconnect', () => {
         console.log('Disconnected from server');
       });
-    },
-    goToNewBucket(){
-      this.$router.push({
-        name: 'skeleton'
-      })
     }
   },
   mounted() {
