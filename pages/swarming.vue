@@ -1,6 +1,7 @@
 <template>
   <div class="container">
     <!-- SVG for Circle, Puck, and Options -->
+    <h1 class="room-id">{{ this.currentRoom }}</h1>
     <div class="parent">
       <div class="div1">
         <h1>RONDE {{ 5 - options.length }}</h1>
@@ -317,6 +318,8 @@ export default {
     this.ids = this.$route.params.ids;
     this.firstName = this.$route.params.firstName;
     this.lastName = this.$route.params.lastName;
+    this.currentRoom = this.$route.params.currentRoom;
+
     this.setupSocket();
     if (this.options.length === 4) {
       this.showPopup = true;
@@ -349,6 +352,14 @@ export default {
 
 .container h1, .container h2, .container h3, .container p, .container li, .container text {
   color: #EEEEEE; 
+}
+
+.room-id {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  color: #333;
 }
 
 .parent {

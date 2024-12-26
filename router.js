@@ -7,6 +7,7 @@ import POIInformation from './pages/poiinformation.vue'
 import AddNewPOI from './pages/addpoi.vue'
 import Leaderboard from './pages/leaderboard.vue';
 import NewBucket from './pages/bucket.vue'
+import SubmitPOI from './pages/submitpoi.vue'
 
 const routes = [
     { path: '/swarming', component: Swarming },
@@ -16,6 +17,7 @@ const routes = [
     { path: '/homepage', component: HomePage},
     { path: '/leaderboard', component: Leaderboard },
     { path: '/newbucket', component: NewBucket },
+    { path: '/submitpoi', component: SubmitPOI },
     { path: '/', component: EnterName}
 ];
 

@@ -35,7 +35,8 @@ let socket;
 export const createConnection = () => {
   if (!socket) {
     // socket = io('https://jip-swarming-backend-d86c9bdc5010.herokuapp.com');  // Connect to the backend URL from environment variable
-    socket = io('http://localhost:4000');  // Connect to the backend URL from environment variable
+    // socket = io('http://localhost:4000');  // Connect to the backend URL from environment variable
+    socket = io('http://192.168.1.96:4000');  // Connect to the backend URL from environment variable
 
     socket.on('connect', () => {
       console.log('Connected to server:', socket.id);

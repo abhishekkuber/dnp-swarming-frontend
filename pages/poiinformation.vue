@@ -73,14 +73,15 @@ export default {
             });
             
             this.socket.on('go-to-swarm', () => {
-            this.socket.emit('reset-counts', this.currentRoom);
+                this.socket.emit('reset-counts', this.currentRoom);
                 this.$router.push({
                     name: 'swarming',
                     params: {
                         titles: this.options,
                         ids: this.ids,
                         firstName: this.firstName,
-                        lastName: this.lastName
+                        lastName: this.lastName,
+                        currentRoom: this.currentRoom
                     }
                 });
             });

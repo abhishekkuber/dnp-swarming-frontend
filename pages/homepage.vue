@@ -2,26 +2,26 @@
   <div class="homepage-container">
     <!-- Welcome Message -->
     <div class="welcome-message">
-      <h1>Welkom bij de Swarm, {{ firstName }} {{ lastName }}!</h1>
+      <h1 v-if="isAdmin">Admin Panel</h1>
+      <h1 v-else>Welkom bij de Swarm, {{ firstName }} {{ lastName }}!</h1>
     </div>
 
     <!-- Buttons for "Join Swarm" and "How to swarm?" -->
     <div class="buttons-container">
-      <button class="join-swarm-button" @click="joinSwarm">Join een Swarm</button>
-      <button class="how-to-swarm-button" @click="howToSwarm">Hoe werkt het?</button>
-      <button class="add-new-poi-button" @click="addNewPOI">Voeg nieuwe informatie toe</button>
-      <button class="leaderboard" @click="goToLeaderboard">Top 10</button>
-      <button class="joinroom1" @click="joinRoom('room1')">Join Room 1</button>
-      <button class="joinroom2" @click="joinRoom('room2')">Join Room 2</button>
-      <button class="joinroom3" @click="joinRoom('room3')">Join Room 3</button>
+      <button v-if="isAdmin" class="join-swarm-button" @click="joinSwarm">Join een Swarm</button>
+      <button v-if="isAdmin" class="how-to-swarm-button" @click="howToSwarm">Hoe werkt het?</button>
+      <button v-if="isAdmin" class="add-new-poi-button" @click="addNewPOI">Voeg nieuwe informatie toe</button>
+      <button v-if="isAdmin" class="leaderboard" @click="goToLeaderboard">Top 10</button>
     </div>
 
     <!-- Popup Modal for Waiting Room -->
     <div v-if="showPopup" class="modal-overlay">
       <div class="modal-content">
         <h2>Wachten tot andere Swarmers zich aansluiten...</h2>
-        <p>Verbonden gebruikers in {{ currentRoom }}: {{ connectedUsers }}</p>
-        <button class="cancel-button" @click="leaveRoom">Annuleren</button>
+        <!-- <p>Verbonden gebruikers in {{ currentRoom }}: {{ connectedUsers }}</p> -->
+        <p>Verbonden gebruikers in de wachtenlijst: {{ connectedUsers }}</p>
+        <!-- <p>De Swarm zal beginnen als we 5 mensen hebben</p> -->
+        <!-- <button class="cancel-button" @click="leaveRoom">Annuleren</button> -->
       </div>
     </div>
   </div>
@@ -38,13 +38,18 @@ export default {
       socket: null,
       firstName: '',
       lastName: '',
-      currentRoom: '' // Track the current room
+      currentRoom: '', // Track the current room
+      isAdmin: false
     };
   },
   methods: {
     joinSwarm() {
       this.showPopup = true;  // Show the waiting popup
       this.socket.emit('join-waiting-room');  // Emit an event to join the waiting room
+    },
+    joinRandomSwarm(){
+      this.showPopup = true;  // Show the waiting popup
+      this.socket.emit('join-random-swarm');  // Emit an event to join the waiting room
     },
     joinRoom(room) {
       console.log(`Joining ${room}`);
@@ -59,7 +64,7 @@ export default {
     },
     addNewPOI() {
       this.$router.push({
-        name: 'addpoi',
+        name: 'submitpoi',
         params: { firstName: this.firstName, lastName: this.lastName }
       }); 
     },
@@ -73,14 +78,16 @@ export default {
       });  
     },
     setupSocket() {
-      console.log('PRINTING FROM THE SETUP SOCKET FUNCTION');
-      console.log('Homepage socket : ', this.socket.id);
+
 
       // Listen for updates to the user count in the current room
       this.socket.on('update-room-user-count', (data) => {
-        if (data.room === this.currentRoom) {
-          this.connectedUsers = data.count;  // Update the user count in real-time
-        }
+        this.currentRoom = data.room;
+        this.connectedUsers = data.count;  // Update the user count in real-time
+      });
+
+      this.socket.on('update-user-ready-client', (data) => {
+        this.connectedUsers = data;
       });
 
       // Once enough users have joined, redirect to the poi page
@@ -112,6 +119,12 @@ export default {
     this.firstName = this.$route.params.firstName;
     this.lastName = this.$route.params.lastName;
     this.setupSocket();
+    if (this.firstName !== 'admin' && this.lastName !== 'admin'){
+      this.joinRandomSwarm();
+    } else {
+      this.isAdmin = true;
+      this.socket.emit('admin-joining')
+    }
   },
 };
 </script>
