@@ -184,7 +184,8 @@ export default {
               results: JSON.stringify(this.rankings),
               resultsIds: JSON.stringify(this.resultsIds),
               firstName: this.firstName,
-              lastName: this.lastName
+              lastName: this.lastName,
+              currentRoom: this.currentRoom
             }
           });
         } else {
@@ -270,7 +271,7 @@ export default {
         this.intervalId = setInterval(() => {
           if (this.socket && this.mouseEnabled) {
             // this.socket.emit('mouse-move', { cursorPosition: this.cursorPosition, puckPosition: this.targetPuckPosition});
-            this.socket.emit('mouse-move', { cursorPosition: this.cursorPosition, puckPosition: this.puckPosition});
+            this.socket.emit('mouse-move', { room: this.currentRoom, cursorPosition: this.cursorPosition, puckPosition: this.puckPosition});
           }
         }, 100);
       }
@@ -291,7 +292,8 @@ export default {
       });
 
       this.socket.on('client-coordinates', (clientCoordinates) => {
-        this.targetClientCoordinates = clientCoordinates;
+        // this.targetClientCoordinates = clientCoordinates;
+        this.targetClientCoordinates = clientCoordinates[this.currentRoom];
       });
 
       this.socket.on('puck-collision', (poiName) => {
