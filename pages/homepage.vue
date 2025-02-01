@@ -108,8 +108,9 @@ export default {
       });
 
       // Listen for disconnect
-      this.socket.on('disconnect', () => {
-        console.log('Disconnected from server');
+      this.socket.on('disconnect', (reason) => {
+        this.socket.disconnect();
+        // console.log('Disconnected from server');
       });
     }
   },
@@ -123,7 +124,7 @@ export default {
       this.joinRandomSwarm();
     } else {
       this.isAdmin = true;
-      this.socket.emit('admin-joining')
+      // this.socket.emit('admin-joining');
     }
   },
 };
@@ -145,17 +146,23 @@ export default {
 .homepage-container h1 {
   color: #EEEEEE; 
   font-size: 50px;
+  text-align: center;
 }
 
 /* Styling for the welcome message */
 .welcome-message {
   margin-bottom: 20px; /* Add margin below the heading */
+  text-align: center;
 }
 
 /* Styling for the buttons container */
 .buttons-container {
   display: flex; /* Use flexbox for layout */
+  flex-direction: column; /* Stack buttons vertically on mobile */
   gap: 10px; /* Add space between buttons */
+  width: 100%;
+  max-width: 400px;
+  align-items: center;
 }
 
 /* Styling for buttons */
@@ -167,12 +174,13 @@ button {
   font-size: 16px;
   cursor: pointer;
   border-radius: 5px;
+  width: 100%; /* Make buttons full-width on mobile */
+  max-width: 300px;
 }
 
 button:hover {
   background-color: #095466;
 }
-
 
 /* Modal overlay background */
 .modal-overlay {
@@ -194,7 +202,8 @@ button:hover {
   padding: 30px;
   border-radius: 8px;
   text-align: center;
-  width: 300px;
+  width: 90%;
+  max-width: 400px;
 }
 
 /* Cancel button inside the modal */

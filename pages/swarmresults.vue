@@ -20,7 +20,6 @@
           @mouseleave="setHoverRating(0)">
           ★
         </span>
-        <!-- <h3>Anything more to add?</h3> -->
         <textarea v-model.lazy="swarmComment" rows="5" placeholder="Voer hier eventuele opmerkingen over het Swarm proces in"></textarea>
       </div>
     </div>
@@ -47,29 +46,19 @@ export default {
   },
   methods: {
     redirect() {
-
-      // this.socket.emit('send-swarm-results', {
-      //   firstName: this.firstName,
-      //   lastName: this.lastName,
-      //   swarmRating: this.rating,
-      //   swarmComment: this.swarmComment
-      // });
-
       this.$router.push({
         name: 'homepage',
         params: { firstName: this.firstName, lastName: this.lastName }
       });
     },
     setRating(star) {
-      this.rating = star; // Set the rating based on the clicked star
+      this.rating = star;
     },
     setHoverRating(star) {
-      this.hoverRating = star; // Update the hover rating based on the hovered star
+      this.hoverRating = star;
     },
     setupSocket() {
       this.socket = getSocket();
-
-      // Listen for connection to the server
       this.socket.on('connect', () => {
         console.log('Connected to server:', this.socket.id);
       });
@@ -80,24 +69,24 @@ export default {
     }
   },
   mounted() {
-    // Sample data for testing
-    // this.swarmResults = ["a", "b", "c", "d"];
-    // this.swarmIds = ["1", "2", "3", "4"];
-    // this.firstName = "abhishek";
-    // this.lastName = "kuber";
     this.firstName = this.$route.params.firstName;
     this.lastName = this.$route.params.lastName;
+    this.currentRoom = this.$route.params.currentRoom;
     this.setupSocket();
     if (this.$route.params.results) {
-      this.swarmResults = JSON.parse(this.$route.params.results); // Convert back to array
+      this.swarmResults = JSON.parse(this.$route.params.results);
     }
     if (this.$route.params.resultsIds) {
-      this.swarmIds = JSON.parse(this.$route.params.resultsIds); // Convert back to array
+      this.swarmIds = JSON.parse(this.$route.params.resultsIds);
     }
-    this.socket.emit('swarming-result-ids', this.swarmIds);
+    
+    this.socket.emit('swarming-result-ids', {
+      swarmIds: this.swarmIds,
+      currentRoom: this.currentRoom
+    });
   },
   beforeDestroy() {
-    this.socket.disconnect(); // Disconnect the socket when the component is destroyed
+    this.socket.disconnect();
   }
 };
 </script>
@@ -111,62 +100,98 @@ export default {
   height: 100vh;
   background: radial-gradient(50% 50% at 50% 50%, rgb(80, 140, 155) 0%, rgb(19, 75, 112) 100%);
   font-family: 'Helvetica', 'Arial', sans-serif;
+  padding: 0 15px;
+  box-sizing: border-box;
 }
 
 .container h1, .container h2, .container li, .container h3 {
-  color: #EEEEEE; 
+  color: #EEEEEE;
+  text-align: center;
 }
 
 .container li {
-  font-size: x-large;
+  font-size: 1.5rem;
+  margin: 5px 0;
 }
 
 button {
-  margin: 20px;
+  margin: 20px 0;
   background-color: #2a93ad;
   color: #EEEEEE;
-  border: 2px;
-  padding: 10px 20px;
-  font-size: 16px;
+  border: 2px solid #2a93ad;
+  padding: 12px 24px;
+  font-size: 1rem;
   cursor: pointer;
   border-radius: 5px;
+  transition: background-color 0.3s ease;
 }
 
 button:hover {
   background-color: #095466;
 }
 
-/* Star Rating Section */
 .rating-container {
   text-align: center;
   margin: 20px 0;
-  width: 40%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  width: 100%;
+  max-width: 600px;
 }
 
 .stars {
   display: inline-block;
+  margin-bottom: 10px;
 }
 
 .star {
-  font-size: 40px;
-  color: #ccc; /* Empty star color */
+  font-size: 2rem;
+  color: #ccc;
   cursor: pointer;
   transition: color 0.3s ease;
 }
 
 .star.filled {
-  color: gold; /* Filled star color */
+  color: gold;
 }
 
 .star:hover {
-  color: gold; /* Highlight on hover */
+  color: gold;
 }
 
-textarea{
-  width: 50vh;
-  margin-top: 20px;
+textarea {
+  width: 100%;
+  max-width: 500px;
+  margin-top: 10px;
+  padding: 10px;
+  font-size: 1rem;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+/* Responsive styling */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 10px;
+  }
+  
+  button {
+    width: 100%;
+    padding: 12px;
+  }
+
+  .rating-container {
+    width: 90%;
+  }
+
+  .stars {
+    font-size: 1.5rem;
+  }
+
+  .star {
+    font-size: 1.8rem;
+  }
+
+  textarea {
+    width: 100%;
+  }
 }
 </style>

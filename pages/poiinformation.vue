@@ -140,10 +140,10 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
     background: radial-gradient(50% 50% at 50% 50%, rgb(80, 140, 155) 0%, rgb(19, 75, 112) 100%);
     font-family: 'Helvetica', 'Arial', sans-serif;
-    padding: 0;
+    padding: 1rem;
     margin: 0;
     box-sizing: border-box;
 }
@@ -154,50 +154,40 @@ export default {
 
 .parent {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: repeat(6, 1fr);
-    grid-column-gap: 0px;
-    grid-row-gap: 0px;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    gap: 1rem;
     width: 100%;
-    height: 100%;
-    padding: 0 150px;
+    max-width: 500px;
+}
+
+@media (min-width: 768px) {
+    .parent {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: auto;
+        gap: 1rem;
+        width: 100%;
+    }
 }
 
 .div1 {
-    grid-area: 1 / 1 / 2 / 5;
+    grid-column: span 2;
     text-align: center;
-}
-.div2 {
-    grid-area: 2 / 1 / 3 / 4;
-}
-.div3 {
-    grid-area: 3 / 1 / 4 / 4;
-}
-.div4 {
-    grid-area: 4 / 1 / 5 / 4;
-}
-.div5 {
-    grid-area: 5 / 1 / 6 / 4;
 }
 .div6 {
-    grid-area: 2 / 4 / 6 / 6;
+    grid-column: span 2;
 }
 .div7 {
-    grid-area: 6 / 1 / 7 / 6;
+    grid-column: span 2;
     text-align: center;
 }
-.div8 {
-    grid-area: 1 / 5 / 2 / 6;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
 
-.div2, .div3, .div4, .div5{
+.div2, .div3, .div4, .div5 {
     background-color: rgba(255, 255, 255, 0.1);
-    margin: 5px 50px;
     border-radius: 8px;
-    padding: 0 20px;
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
 }
 
 .div2:hover, .div3:hover, .div4:hover, .div5:hover {
@@ -208,8 +198,8 @@ button {
     background-color: #2a93ad;
     color: #EEEEEE;
     border: none;
-    padding: 10px 20px;
-    font-size: 16px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
     cursor: pointer;
     border-radius: 5px;
 }
@@ -231,22 +221,22 @@ button:hover {
     z-index: 1000;
 }
 
-/* Modal content box */
 .modal-content {
     background-color: white;
-    padding: 30px;
+    padding: 2rem;
     border-radius: 8px;
     text-align: center;
-    width: 300px;
+    width: 90%;
+    max-width: 300px;
 }
 
 .cancel-button {
     background-color: #dc3545;
     color: white;
     border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    margin-top: 20px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    margin-top: 1rem;
     cursor: pointer;
     border-radius: 5px;
 }
@@ -255,7 +245,7 @@ button:hover {
     background-color: #c82333;
 }
 
-.modal-overlay h2, .modal-overlay p{
+.modal-overlay h2, .modal-overlay p {
     color: black;
 }
 </style>

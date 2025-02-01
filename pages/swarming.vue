@@ -10,50 +10,72 @@
         <h2>{{ minutes }}:{{ seconds }}</h2>
       </div>
       <div class="div3">
-        <svg :width="size" :height="size" @mousemove="calculateCursorPosition">
-          <defs>
-            <radialGradient id="myGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-              <stop offset="0%" style="stop-color: rgb(80, 140, 155); stop-opacity: 1" />
-              <stop offset="100%" style="stop-color: rgb(19, 75, 112); stop-opacity: 1" />
-            </radialGradient>
-            <radialGradient id="optionGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-              <stop offset="0%" style="stop-color: rgb(255, 255, 255); stop-opacity: 1" />
-              <stop offset="100%" style="stop-color: rgb(80, 140, 155); stop-opacity: 1" />
-            </radialGradient>
-          </defs>
-          <!-- Makes the options circle -->
-          <circle :cx="centerX" :cy="centerY" :r="radius" stroke="#201E43" stroke-width="2" fill="#ECE6C5" fill-opacity="0.5"/>
-          
-          <!-- Render the remaining options on the circle -->
-          <g v-for="(poi, index) in pois" :key="index">
-            <circle :cx="poi.x" :cy="poi.y" r="8" fill="url(#optionGradient)" stroke="#201E43" stroke-width="1"/>
-            
-            <text :x="poi.x + 12" :y="poi.y + 5" font-family="Arial" font-size="12" fill="#EEEEEE">
-              <tspan 
-                v-for="(line, i) in splitText(poi.name)" 
-                :x="poi.x + 12" 
-                :dy="i ? 14 : 0" 
-                :key="i">
-                {{ line }}
-              </tspan>
-            </text>
-          </g>
+  <svg
+    :width="size"
+    :height="size"
+    :viewBox="`0 0 ${size} ${size}`"
+    xmlns="http://www.w3.org/2000/svg"
+    @mousemove="calculateCursorPosition"
+  >
+    <defs>
+      <radialGradient id="myGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+        <stop offset="0%" style="stop-color: rgb(80, 140, 155); stop-opacity: 1" />
+        <stop offset="100%" style="stop-color: rgb(19, 75, 112); stop-opacity: 1" />
+      </radialGradient>
+      <radialGradient id="optionGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+        <stop offset="0%" style="stop-color: rgb(255, 255, 255); stop-opacity: 1" />
+        <stop offset="100%" style="stop-color: rgb(80, 140, 155); stop-opacity: 1" />
+      </radialGradient>
+    </defs>
 
+    <!-- Main Circle -->
+    <circle
+      :cx="size / 2"
+      :cy="size / 2"
+      :r="radius"
+      stroke="#201E43"
+      stroke-width="2"
+      fill="#ECE6C5"
+      fill-opacity="0.5"
+    />
 
-          <!-- Puck -->
-          <circle :cx="puckPosition.x" :cy="puckPosition.y" r="10" fill="url(#myGradient)" />
+    <!-- Render POIs -->
+    <g v-for="(poi, index) in pois" :key="index">
+      <circle :cx="poi.x" :cy="poi.y" r="8" fill="url(#optionGradient)" stroke="#201E43" stroke-width="1" />
 
-          <!-- Cursor -->
-          <circle
-            v-for="(coord, id) in targetClientCoordinates"
-            :key="id"
-            :cx="coord.x"
-            :cy="coord.y"
-            r="5"
-            fill="#FF0000"
-          />
-        </svg>
-      </div>
+      <text
+        :x="poi.x + 12"
+        :y="poi.y + 5"
+        font-family="Arial"
+        font-size="12"
+        fill="#EEEEEE"
+      >
+        <tspan
+          v-for="(line, i) in splitText(poi.name)"
+          :x="poi.x + 12"
+          :dy="i ? 14 : 0"
+          :key="i"
+        >
+          {{ line }}
+        </tspan>
+      </text>
+    </g>
+
+    <!-- Puck -->
+    <circle :cx="puckPosition.x" :cy="puckPosition.y" r="10" fill="url(#myGradient)" />
+
+    <!-- Cursor -->
+    <circle
+      v-for="(coord, id) in targetClientCoordinates"
+      :key="id"
+      :cx="coord.x"
+      :cy="coord.y"
+      r="5"
+      fill="#FF0000"
+    />
+  </svg>
+</div>
+
       <div class="div4">
         <ul>
           <li>RESULTATEN</li>
@@ -150,11 +172,20 @@ export default {
       return lines;
     },
 
+    // calculateCursorPosition(event) {
+    //   const rect = event.currentTarget.getBoundingClientRect();
+    //   const x = event.clientX - rect.left;
+    //   const y = event.clientY - rect.top;
+    //   this.cursorPosition = { x, y };
+    // },
+
     calculateCursorPosition(event) {
-      const rect = event.currentTarget.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
-      this.cursorPosition = { x, y };
+      const svg = event.target.closest('svg'); // Get the SVG element
+      const point = svg.createSVGPoint(); // Create a point in SVG space
+      point.x = event.clientX;
+      point.y = event.clientY;
+      const svgCoords = point.matrixTransform(svg.getScreenCTM().inverse());
+      this.cursorPosition = { x: svgCoords.x, y: svgCoords.y };
     },
 
     optionSelected(selectedOption) {
@@ -343,7 +374,6 @@ export default {
   },
 };
 </script>
-
 <style scoped>
 .container {
   justify-content: center;
@@ -353,14 +383,14 @@ export default {
 }
 
 .container h1, .container h2, .container h3, .container p, .container li, .container text {
-  color: #EEEEEE; 
+  color: #EEEEEE;
 }
 
 .room-id {
   position: absolute;
   top: 10px;
   right: 10px;
-  font-size: 24px;
+  font-size: 1.5rem;
   color: #333;
 }
 
@@ -379,26 +409,25 @@ export default {
   align-items: center;
 }
 
-
-.div1 { 
-  grid-area: 1 / 1 / 2 / 5; 
+.div1 {
+  grid-area: 1 / 1 / 2 / 5;
 }
 
 .div2 {
   grid-area: 1 / 5 / 2 / 6;
 }
 
-.div3 { 
+.div3 {
   grid-area: 2 / 1 / 5 / 5;
   flex-grow: 1;
 }
 
-.div4 { 
+.div4 {
   padding-top: 20%;
   grid-area: 2 / 5 / 5 / 6;
 }
 
-.div5 { 
+.div5 {
   grid-area: 5 / 1 / 6 / 6;
 }
 
@@ -409,10 +438,10 @@ h1, h2, h3 {
 li {
   list-style-type: none;
   padding: 5px;
-  font-size: x-large;
+  font-size: large;
 }
 
-div h3{
+div h3 {
   width: 40%;
 }
 
@@ -422,28 +451,145 @@ div h3{
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
 }
 
-/* Modal content box */
 .modal-content {
   background-color: white;
-  padding: 30px;
+  padding: 20px;
   border-radius: 8px;
   text-align: center;
-  width: 300px;
-  /* height: 200px; */
+  width: 80%;
+  max-width: 400px;
 }
 
-.modal-content h1{
-  font-size: 15vh;
+.modal-content h1 {
+  font-size: 10vw;
   color: black;
 }
 
+/* RESPONSIVENESS */
+@media (max-width: 1024px) {
+  .parent {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto;
+  }
 
+  .div1 {
+    grid-area: 1 / 1 / 2 / 4;
+  }
 
+  .div2 {
+    grid-area: 2 / 1 / 3 / 4;
+  }
+
+  .div3 {
+    grid-area: 3 / 1 / 4 / 4;
+  }
+
+  .div4 {
+    grid-area: 4 / 1 / 5 / 4;
+    padding-top: 10%;
+  }
+
+  .div5 {
+    grid-area: 5 / 1 / 6 / 4;
+  }
+
+  li {
+    font-size: medium;
+  }
+}
+
+@media (max-width: 768px) {
+  .parent {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: auto;
+  }
+
+  .div1 {
+    grid-area: 1 / 1 / 2 / 3;
+  }
+
+  .div2 {
+    grid-area: 2 / 1 / 3 / 3;
+  }
+
+  .div3 {
+    grid-area: 3 / 1 / 4 / 3;
+  }
+
+  .div4 {
+    grid-area: 4 / 1 / 5 / 3;
+  }
+
+  .div5 {
+    grid-area: 5 / 1 / 6 / 3;
+  }
+
+  li {
+    font-size: small;
+  }
+
+  .room-id {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .parent {
+    grid-template-columns: 1fr;
+  }
+
+  .div1,
+  .div2,
+  .div3,
+  .div4,
+  .div5 {
+    grid-area: auto;
+  }
+
+  .modal-content h1 {
+    font-size: 12vw;
+  }
+
+  li {
+    font-size: small;
+    padding: 3px;
+  }
+
+  .div3 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(50% 50% at 50% 50%, rgb(80, 140, 155) 0%, rgb(19, 75, 112) 100%);
+  height: 100%;
+  width: 100%;
+}
+
+svg {
+  width: 70vw; /* The width of the SVG relative to the viewport */
+  height: 70vw; /* Keep it square for the circle */
+  max-width: 500px; /* Limit the size for larger screens */
+  max-height: 500px;
+}
+
+@media (max-width: 768px) {
+  svg {
+    width: 80vw; /* Increase size for smaller screens */
+    height: 80vw;
+  }
+}
+
+@media (max-width: 480px) {
+  svg {
+    width: 90vw; /* Further adjust for small screens */
+    height: 90vw;
+  }
+}
+}
 </style>
