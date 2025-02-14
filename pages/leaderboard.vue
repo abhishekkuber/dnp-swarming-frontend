@@ -12,9 +12,24 @@
                 <!-- <p>The following list shows the top-ranked pieces of information based on previous swarms. These results emerged from collective decision-making processes and provide a good overview of the most important themes from different subjects.</p> -->
             </div>
             <div class="div3"> 
-                <ul>
-                    <li v-for="(item, index) in leaderboard" :key="index">{{ index+1 }}. {{ item }}</li>
-                </ul>
+                <table>
+          <thead>
+            <tr>
+              <th>Onderwerp</th>
+              <th>Mu</th>
+              <th>Sigma</th>
+              <th>Swarm Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item, index) in leaderboard" :key="index">
+              <td>{{ item.title }}</td>
+              <td>{{ item.mu }}</td>
+              <td>{{ item.sigma }}</td>
+              <td>{{ item.swarmScore }}</td>
+            </tr>
+          </tbody>
+        </table>
             </div>
         </div>
         <div class="div4"> 
@@ -58,6 +73,7 @@ export default {
         // Listen for the leaderboard event from the backend
         this.socket.on('leaderboard', (data) => {
             this.leaderboard = data;
+            console.log(this.leaderboard);
         });
     },
 };
@@ -65,17 +81,24 @@ export default {
 
 <style scoped>
 .container {
+  display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   background: radial-gradient(50% 50% at 50% 50%, rgb(80, 140, 155) 0%, rgb(19, 75, 112) 100%);
   font-family: 'Helvetica', 'Arial', sans-serif;
-  height: 100vh;
+  min-height: 100vh;
+  height: auto;
+  width: 100%;
+  background-size: cover;
+  padding: 20px;
 }
+
 
 .container h1, .container h2, .container h3, .container p, .container li, .container text {
   color: #EEEEEE; 
 }
-.parent {
+/* .parent {
     margin: 0 auto;
     display: grid;
     grid-template-columns: 1fr;
@@ -85,6 +108,18 @@ export default {
     height: 80vh;
     width: 60%;
     padding: 20px;
+} */
+
+.parent {
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto; /* Allow rows to expand dynamically */
+    grid-row-gap: 20px;
+    width: 60%;
+    padding: 20px;
+    height: auto; /* Remove fixed height */
+    min-height: 80vh; /* Ensures minimum height but allows expansion */
 }
 
 .div1 h1{
@@ -119,6 +154,30 @@ export default {
 
 .div3 li {
     color: #333; 
+}
+.div3 table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.div3 th, .div3 td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+}
+
+.div3 th {
+  background-color: #2a93ad;
+  color: white;
+  font-weight: bold;
+}
+
+.div3 tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.div3 tr:hover {
+  background-color: #ddd;
 }
 .div4 { 
     grid-area: 4 / 1 / 5 / 2; /* Ensure div4 is on its own row */
