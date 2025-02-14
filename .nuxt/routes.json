@@ -36,10 +36,28 @@
     "chunkName": "pages/skeleton"
   },
   {
+    "name": "submitpoi",
+    "path": "/submitpoi",
+    "component": "/Users/abhishekkuber/Desktop/TU Delft/JIP/DNP/frontend/pages/submitpoi.vue",
+    "chunkName": "pages/submitpoi"
+  },
+  {
     "name": "swarming",
     "path": "/swarming",
     "component": "/Users/abhishekkuber/Desktop/TU Delft/JIP/DNP/frontend/pages/swarming.vue",
     "chunkName": "pages/swarming"
+  },
+  {
+    "name": "swarming-joystick",
+    "path": "/swarming-joystick",
+    "component": "/Users/abhishekkuber/Desktop/TU Delft/JIP/DNP/frontend/pages/swarming-joystick.vue",
+    "chunkName": "pages/swarming-joystick"
+  },
+  {
+    "name": "swarming-mousemove",
+    "path": "/swarming-mousemove",
+    "component": "/Users/abhishekkuber/Desktop/TU Delft/JIP/DNP/frontend/pages/swarming-mousemove.vue",
+    "chunkName": "pages/swarming-mousemove"
   },
   {
     "name": "swarmresults",

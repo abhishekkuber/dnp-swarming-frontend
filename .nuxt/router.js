@@ -10,7 +10,10 @@ const _6fe6456c = () => interopDefault(import('../pages/homepage.vue' /* webpack
 const _8946d022 = () => interopDefault(import('../pages/leaderboard.vue' /* webpackChunkName: "pages/leaderboard" */))
 const _b42270c0 = () => interopDefault(import('../pages/poiinformation.vue' /* webpackChunkName: "pages/poiinformation" */))
 const _6118264b = () => interopDefault(import('../pages/skeleton.vue' /* webpackChunkName: "pages/skeleton" */))
+const _617810b8 = () => interopDefault(import('../pages/submitpoi.vue' /* webpackChunkName: "pages/submitpoi" */))
 const _095a8a30 = () => interopDefault(import('../pages/swarming.vue' /* webpackChunkName: "pages/swarming" */))
+const _8954979e = () => interopDefault(import('../pages/swarming-joystick.vue' /* webpackChunkName: "pages/swarming-joystick" */))
+const _b1608a5e = () => interopDefault(import('../pages/swarming-mousemove.vue' /* webpackChunkName: "pages/swarming-mousemove" */))
 const _bb1c6408 = () => interopDefault(import('../pages/swarmresults.vue' /* webpackChunkName: "pages/swarmresults" */))
 const _30567244 = () => interopDefault(import('../pages/index.vue' /* webpackChunkName: "pages/index" */))
 
@@ -50,9 +53,21 @@ export const routerOptions = {
     component: _6118264b,
     name: "skeleton"
   }, {
+    path: "/submitpoi",
+    component: _617810b8,
+    name: "submitpoi"
+  }, {
     path: "/swarming",
     component: _095a8a30,
     name: "swarming"
+  }, {
+    path: "/swarming-joystick",
+    component: _8954979e,
+    name: "swarming-joystick"
+  }, {
+    path: "/swarming-mousemove",
+    component: _b1608a5e,
+    name: "swarming-mousemove"
   }, {
     path: "/swarmresults",
     component: _bb1c6408,
