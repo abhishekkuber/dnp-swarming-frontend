@@ -12,7 +12,6 @@
   "dependencies": {
     "core-js": "^3.25.3",
     "mathjs": "^13.1.1",
-    "nipplejs": "^0.10.2",
     "nuxt": "^2.18.1",
     "socket.io-client": "^4.8.0",
     "vue": "^2.7.16",
