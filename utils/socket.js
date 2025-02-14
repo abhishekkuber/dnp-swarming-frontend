@@ -38,6 +38,7 @@ export const createConnection = () => {
     // socket = io('http://localhost:4000');  // Connect to the backend URL from environment variable
     // socket = io('http://145.94.141.225:4000');  // Connect to the backend URL from environment variable
     // socket = io('http://192.168.0.101:4000');  // Connect to the backend URL from environment variable
+    // heroku
 
     socket.on('connect', () => {
       console.log('Connected to server:', socket.id);
