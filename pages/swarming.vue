@@ -309,7 +309,8 @@
             //   this.mouseEnabled = true;
             // }, 3000);
           }
-          this.socket.emit('puck-coordinates-data', { poiCoords: this.pois });
+          // this.socket.emit('puck-coordinates-data', { poiCoords: this.pois });
+          this.socket.emit('puck-coordinates-data', {poiCoords: this.pois, room: this.currentRoom});
         }
       },
       
@@ -392,7 +393,7 @@
   
         console.log('Swarming socket ID :', this.socket.id);
         this.socket.emit('connection-data', {radius: this.radius, centre: this.centre});
-        this.socket.emit('puck-coordinates-data', {poiCoords: this.pois});
+        this.socket.emit('puck-coordinates-data', {poiCoords: this.pois, room: this.currentRoom});
   
   
         this.socket.on('puck-move', (puckCoordinates) => {
