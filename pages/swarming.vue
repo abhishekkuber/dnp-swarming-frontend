@@ -397,7 +397,7 @@
   
         this.socket.on('puck-move', (puckCoordinates) => {
           // this.targetPuckPosition = puckCoordinates;
-          this.puckPosition = puckCoordinates;
+          this.puckPosition = puckCoordinates[this.currentRoom];
         });
   
         this.socket.on('client-coordinates', (clientCoordinates) => {
@@ -407,10 +407,13 @@
           delete this.targetClientCoordinates[this.socket.id];
         });
   
-        this.socket.on('puck-collision', (poiName) => {
-          this.roundInProgress = false;
-          this.mouseEnabled = false;
-          this.optionSelected(poiName); 
+        this.socket.on('puck-collision', (data) => {
+          if(data.room === this.currentRoom){
+            const poiName = data.poiName;
+            this.roundInProgress = false;
+            this.mouseEnabled = false;
+            this.optionSelected(poiName); 
+          }
         });
       },
       lerp(start, end, t) {
