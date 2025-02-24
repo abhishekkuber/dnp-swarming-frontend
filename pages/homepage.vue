@@ -8,10 +8,10 @@
 
     <!-- Buttons for "Join Swarm" and "How to swarm?" -->
     <div class="buttons-container">
-      <button v-if="isAdmin" class="join-swarm-button" @click="joinSwarm">Join een Swarm</button>
-      <button v-if="isAdmin" class="how-to-swarm-button" @click="howToSwarm">Hoe werkt het?</button>
+      <!-- <button v-if="isAdmin" class="join-swarm-button" @click="joinSwarm">Join een Swarm</button> -->
+      <!-- <button v-if="isAdmin" class="how-to-swarm-button" @click="howToSwarm">Hoe werkt het?</button> -->
       <button v-if="isAdmin" class="add-new-poi-button" @click="addNewPOI">Voeg nieuwe informatie toe</button>
-      <button v-if="isAdmin" class="leaderboard" @click="goToLeaderboard">Top 10</button>
+      <button v-if="isAdmin" class="leaderboard" @click="goToLeaderboard">Leaderbord krijgen</button>
     </div>
 
     <!-- Popup Modal for Waiting Room -->

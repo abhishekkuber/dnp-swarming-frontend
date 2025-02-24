@@ -4,11 +4,11 @@
     <div class="container">
         <div class="parent">
             <div class="div1"> 
-                <h1>Top 10 informatie</h1>
+                <h1>Informatie Leaderbord</h1>
                 <!-- <h1>Top 10 information</h1> -->
             </div>
             <div class="div2"> 
-                <p>De volgende lijst toont de top 10 onderwerpen op basis van eerdere swarms binnen de politie. Deze resultaten zijn voortgekomen uit collectieve besluitvormingsprocessen.</p>
+                <p>De volgende lijst toont de top onderwerpen op basis van eerdere swarms binnen de politie. Deze resultaten zijn voortgekomen uit collectieve besluitvormingsprocessen.</p>
                 <!-- <p>The following list shows the top-ranked pieces of information based on previous swarms. These results emerged from collective decision-making processes and provide a good overview of the most important themes from different subjects.</p> -->
             </div>
             <div class="div3"> 

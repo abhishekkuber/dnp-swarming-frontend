@@ -33,7 +33,8 @@ export default {
           params: { firstName: this.firstName, lastName: this.lastName }
         });
       } else {
-        alert("Please fill in both your first and last names.");
+        // alert("Please fill in both your first and last names.");
+        alert("Vul alle verplichte velden in.");
       }
     },
   },

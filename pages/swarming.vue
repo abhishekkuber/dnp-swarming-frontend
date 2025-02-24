@@ -132,8 +132,6 @@
         centre: { x: 250, y: 250},
         options: [],
         results: [], // This will act as leaderboard (ranking)
-        // options: ["Option 1", "Option 2", "Option 3", "Option 4"],
-        // results: ["Option 1", "Option 2", "Option 3", "Option 4"], // This will act as leaderboard (ranking)
         ids: [],
         resultsIds: [],
         puckPosition: { x: 250, y: 250 },
@@ -152,7 +150,7 @@
         countdown: 3,
         firstName: "",
         lastName: "",
-        sliderAngle: 0, // Angle in radians
+        sliderAngle: 45, // Angle in radians
         isDragging: false,
       };
     },
@@ -212,6 +210,7 @@
 
       startDrag(event) {
         this.isDragging = true;
+        // event.preventDefault();
         document.addEventListener("mousemove", this.dragSlider);
         document.addEventListener("mouseup", this.stopDrag);
         document.addEventListener("touchmove", this.dragSlider);
@@ -220,6 +219,7 @@
     dragSlider(event) {
         if (!this.isDragging) return;
 
+        // event.preventDefault();
         // Get mouse position
         const clientX = event.touches ? event.touches[0].clientX : event.clientX;
         const clientY = event.touches ? event.touches[0].clientY : event.clientY;
@@ -240,22 +240,6 @@
         document.removeEventListener("touchmove", this.dragSlider);
         document.removeEventListener("touchend", this.stopDrag);
         },
-  
-      // calculateCursorPosition(event) {
-      //   const rect = event.currentTarget.getBoundingClientRect();
-      //   const x = event.clientX - rect.left;
-      //   const y = event.clientY - rect.top;
-      //   this.cursorPosition = { x, y };
-      // },
-  
-    //   calculateCursorPosition(event) {
-    //     const svg = event.target.closest('svg'); // Get the SVG element
-    //     const point = svg.createSVGPoint(); // Create a point in SVG space
-    //     point.x = event.clientX;
-    //     point.y = event.clientY;
-    //     const svgCoords = point.matrixTransform(svg.getScreenCTM().inverse());
-    //     this.cursorPosition = { x: svgCoords.x, y: svgCoords.y };
-    //   },
 
       calculateCursorPosition(){
         this.cursorPosition = {
@@ -420,17 +404,22 @@
       lerp(start, end, t) {
         return start + (end - start) * t; // Linear interpolation
       },
+      
+      preventTouchMove(event) {
+        event.preventDefault();
+      },
   
       animatePuck() {
         const lerpFactor = 0.08; // Adjust for smoothness (lower is smoother)
         this.puckPosition.x = this.lerp(this.puckPosition.x, this.targetPuckPosition.x, lerpFactor);
         this.puckPosition.y = this.lerp(this.puckPosition.y, this.targetPuckPosition.y, lerpFactor);
         requestAnimationFrame(this.animatePuck); // Call again for the next frame
-      },
-  
+      },  
     },
   
     mounted() {
+      document.addEventListener("touchmove", this.preventTouchMove, { passive: false }); // Prevent scrolling when touching the screen
+
       this.options = this.$route.params.titles;
       this.ids = this.$route.params.ids;
       this.firstName = this.$route.params.firstName;
@@ -456,6 +445,9 @@
       // this.animatePuck();
       this.sendCoordsToServer();
   
+    },
+    beforeDestroy() {
+      document.removeEventListener("touchmove", this.preventTouchMove, { passive: false });
     },
   };
   </script>
