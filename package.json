@@ -12,6 +12,7 @@
   "dependencies": {
     "buffer": "^6.0.3",
     "core-js": "^3.25.3",
+    "gsap": "^3.12.7",
     "mathjs": "^13.1.1",
     "nipplejs": "^0.10.2",
     "nuxt": "^2.18.1",
