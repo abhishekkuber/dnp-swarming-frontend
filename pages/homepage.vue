@@ -10,6 +10,10 @@
     <div class="buttons-container">
       <!-- <button v-if="isAdmin" class="join-swarm-button" @click="joinSwarm">Join een Swarm</button> -->
       <!-- <button v-if="isAdmin" class="how-to-swarm-button" @click="howToSwarm">Hoe werkt het?</button> -->
+      <button v-if="!isAdmin" class="tutorial-button" @click="goToTutorial">Tutorial</button>
+      <button v-if="!isAdmin" class="join-swarm" @click="joinRandomSwarm">Join swarm</button>
+
+      
       <button v-if="isAdmin" class="add-new-poi-button" @click="addNewPOI">Voeg nieuwe informatie toe</button>
       <button v-if="isAdmin" class="leaderboard" @click="goToLeaderboard">Leaderbord krijgen</button>
     </div>
@@ -56,6 +60,12 @@ export default {
       this.currentRoom = room;
       this.showPopup = true;  // Show the waiting popup
       this.socket.emit('join-room', room);
+    },
+    goToTutorial() {
+      this.$router.push({
+        name: 'tutorial_1',
+        params: { firstName: this.firstName, lastName: this.lastName }
+      });
     },
     leaveRoom() {
       this.showPopup = false;  // Close the popup
@@ -121,7 +131,7 @@ export default {
     this.lastName = this.$route.params.lastName;
     this.setupSocket();
     if (this.firstName !== 'admin' && this.lastName !== 'admin'){
-      this.joinRandomSwarm();
+      // this.joinRandomSwarm();
     } else {
       this.isAdmin = true;
       // this.socket.emit('admin-joining');

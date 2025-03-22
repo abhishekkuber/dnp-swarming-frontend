@@ -29,13 +29,12 @@
             </radialGradient>
           </defs>
 
-          <!-- Main Circle -->
           <circle
+            id="main-circle"
             :cx="size / 2"
             :cy="size / 2"
             :r="radius"
-            stroke="#201E43"
-            stroke-width="2"
+            :style="highlightStyle('main-circle')"
             fill="#ECE6C5"
             fill-opacity="0.5"
           />
@@ -53,20 +52,32 @@
 
           <!-- Slider (Magnet Emoji) -->
           <text
+            id="slider"
             :x="sliderPosition.x"
             :y="sliderPosition.y"
             font-size="24"
             text-anchor="middle"
             alignment-baseline="middle"
+            :style="highlightStyle('slider')"
             @mousedown="startDrag"
             @touchstart="startDrag"
           >
             🧲
           </text>
 
+
           <!-- Render POIs -->
           <g v-for="(poi, index) in pois" :key="index">
-            <circle :id="'poi-' + poi.name" :cx="poi.x" :cy="poi.y" r="8" fill="url(#optionGradient)" stroke="#201E43" stroke-width="1" />
+            <circle
+              :id="'poi-' + poi.name"
+              :cx="poi.x"
+              :cy="poi.y"
+              r="8"
+              fill="url(#optionGradient)"
+              stroke="#201E43"
+              stroke-width="1"
+              :style="highlightStyle('poi-' + poi.name)"
+            />
 
             <text
               :x="poi.x + 12"
@@ -86,8 +97,18 @@
             </text>
           </g>
 
+
           <!-- Puck -->
-          <circle :cx="puckPosition.x" :cy="puckPosition.y" r="10" fill="url(#myGradient)" />
+          <!-- <circle :cx="puckPosition.x" :cy="puckPosition.y" r="10" fill="url(#myGradient)" /> -->
+          <circle
+            id="puck"
+            :cx="puckPosition.x"
+            :cy="puckPosition.y"
+            r="10"
+            :style="highlightStyle('puck')"
+            fill="url(#myGradient)"
+          />
+
 
           <!-- Cursor (Alien Emoji) -->
           <text
@@ -121,6 +142,21 @@
         <h1>{{ countdown }}</h1>
       </div>
     </div>
+
+    <!-- Tutorial Overlay -->
+    <div v-if="showTutorial" class="tutorial-overlay" @click="nextHint">
+    <div class="tutorial-content">
+      <h2>{{ currentHint.text }}</h2>
+      <div v-if="currentHint.arrowPosition" class="tutorial-arrow" :style="arrowStyle">
+        <!-- Updated SVG Arrow -->
+        <div v-if="currentHint.arrowPosition" 
+          class="tutorial-arrow" 
+          :style="{ left: currentHint.arrowPosition.x + 'px', top: currentHint.arrowPosition.y + 'px' }">
+        <div class="arrow-tip"></div>
+      </div>
+      </div>
+    </div>
+  </div>
   </div>
 </template>
 
@@ -128,13 +164,12 @@
 import { getSocket } from '../utils/socket';
 import gsap from "gsap";
 
-
 export default {
   data() {
     return {
       size: 500,
       radius: 150,
-      centre: { x: 250, y: 250},
+      centre: { x: 250, y: 250 },
       options: [],
       popUpReason: "Starting swarm",
       results: [], // This will act as leaderboard (ranking)
@@ -157,9 +192,36 @@ export default {
       lastName: "",
       sliderAngle: 45, // Angle in radians
       isDragging: false,
+
+      tutorialHints: [
+        { text: "Welcome to the tutorial! Click to continue.", highlightTarget: null },
+        { text: "This is the circle where the magic happens.", highlightTarget: "main-circle" },
+        { text: "These are the topics you will be swarming on", highlightTarget: "poi-football" },
+        { text: "These are the topics you will be swarming on", highlightTarget: "poi-tennis" },
+        { text: "These are the topics you will be swarming on", highlightTarget: "poi-padel" },
+        { text: "These are the topics you will be swarming on", highlightTarget: "poi-cricket" },
+        { text: "This is the group's collective decision, called the puck.", highlightTarget: "puck" },
+        { text: "The puck moves by aggregating the swarmers' inputs.", highlightTarget: null },
+        { text: "Slide this magnet along the outer circle to give your input.", highlightTarget: "slider" },
+        { text: "A topic is chosen once the puck touches any of the 4 points.", highlightTarget: null },
+
+        // this.options = ["football", "tennis", "padel", "cricket"];
+      ],
+      currentHintIndex: 0,
+      showTutorial: true,
     };
   },
   computed: {
+    highlightStyle() {
+      return (elementId) => ({
+        stroke: this.currentHint.highlightTarget === elementId ? "#FF5733" : "#201E43",
+        "stroke-width": this.currentHint.highlightTarget === elementId ? "4" : "2",
+        filter: this.currentHint.highlightTarget === elementId ? "drop-shadow(0px 0px 10px #FF5733)" : "none",
+        transform: this.currentHint.highlightTarget === elementId ? "scale(1.05)" : "scale(1)", // Slight magnification
+        transformOrigin: "center", // Ensures scaling happens from the center
+        transition: "transform 0.2s ease-in-out", // Smooth effect
+      });
+    },
     centerX() {
       return this.centre.x;
     },
@@ -174,12 +236,44 @@ export default {
     },
     sliderPosition() {
       return {
-          x: this.centerX + this.perimeterRadius * Math.cos(this.sliderAngle),
-          y: this.centerY + this.perimeterRadius * Math.sin(this.sliderAngle),
+        x: this.centerX + this.perimeterRadius * Math.cos(this.sliderAngle),
+        y: this.centerY + this.perimeterRadius * Math.sin(this.sliderAngle),
+      };
+    },
+    currentHint() {
+      return this.tutorialHints[this.currentHintIndex];
+    },
+    arrowStyle() {
+      if (!this.currentHint.arrowPosition) return {};
+      const { x, y } = this.currentHint.arrowPosition;
+      const angle = Math.atan2(y - this.centerY, x - this.centerX) * (180 / Math.PI);
+      return {
+        left: `${x}px`,
+        top: `${y}px`,
+        transform: `rotate(${angle}deg)`,
       };
     },
   },
   methods: {
+    nextHint() {
+      if (this.currentHintIndex < this.tutorialHints.length - 1) {
+        this.currentHintIndex++;
+      } else {
+        this.showTutorial = false;
+        // this.mouseEnabled = true; // Enable interaction after tutorial
+        if (this.options.length === 4) {
+          this.showPopup = true;
+          this.mouseEnabled = false;
+          this.startCountdown();
+
+          setTimeout(() => {
+            this.showPopup = false;
+          }, 3000);
+        }
+
+        this.sendCoordsToServer();
+      }
+    },
     getPoiCoords(numPoi, centre, radius) {
       const poiCoords = [];
       const angle = 360 / numPoi;
@@ -201,7 +295,6 @@ export default {
 
       return poiCoords;
     },
-
     splitText(text) {
       const maxLength = 15; // Set the max characters per line
       const lines = [];
@@ -212,7 +305,6 @@ export default {
 
       return lines;
     },
-
     startDrag(event) {
       this.isDragging = true;
       this.mouseEnabled = true;
@@ -241,14 +333,12 @@ export default {
       document.removeEventListener("touchmove", this.dragSlider);
       document.removeEventListener("touchend", this.stopDrag);
     },
-
-    calculateCursorPosition(){
+    calculateCursorPosition() {
       this.cursorPosition = {
-          x: this.sliderPosition.x,
-          y: this.sliderPosition.y,
+        x: this.sliderPosition.x,
+        y: this.sliderPosition.y,
       };    
     },
-
     optionSelected(selectedOption) {
       if (!this.rankings.includes(selectedOption)) {
         const id = this.ids[this.options.findIndex(element => element === selectedOption)];
@@ -258,89 +348,102 @@ export default {
         this.ids = this.ids.filter(hehe => hehe !== id);
 
         this.stopTimer(); // Stop timer when option is selected
-
-        if (this.options.length === 1) {
-          this.rankings.push(this.options[0]); // This is the ranked list
-          this.resultsIds.push(this.ids[0]);
-
-          this.options = [];
-
-          this.$router.push({
-            name: 'swarmresults',
+        
+        this.$router.push({
+            name: 'tutorial_2',
             params: {
-              results: JSON.stringify(this.rankings),
+              rankings: this.rankings,
+              options: this.options,
+              ids: JSON.stringify(this.ids),
               resultsIds: JSON.stringify(this.resultsIds),
               firstName: this.firstName,
               lastName: this.lastName,
               currentRoom: this.currentRoom
+              // results: JSON.stringify(this.ids),
+              // resultsIds: JSON.stringify(this.resultsIds),
+              // firstName: this.firstName,
+              // lastName: this.lastName,
+              // currentRoom: this.currentRoom
             }
           });
-        } else {
-          this.resetRound();
-        }
+
+        // if (this.options.length === 1) {
+        //   this.rankings.push(this.options[0]); // This is the ranked list
+        //   this.resultsIds.push(this.ids[0]);
+
+        //   this.options = [];
+
+        //   this.$router.push({
+        //     name: 'swarmresults',
+        //     params: {
+        //       results: JSON.stringify(this.rankings),
+        //       resultsIds: JSON.stringify(this.resultsIds),
+        //       firstName: this.firstName,
+        //       lastName: this.lastName,
+        //       currentRoom: this.currentRoom
+        //     }
+        //   });
+        // } else {
+        //   this.resetRound();
+        // }
         this.socket.emit('puck-coordinates-data', {poiCoords: this.pois, room: this.currentRoom});
       }
     },
-
-    
-
     animateOptionToList(poiName, startX, startY) {
-  // Temporarily add the option to the DOM for the animation
-  const tempElement = document.createElement("li");
-  tempElement.id = `temp-${poiName}`;
-  tempElement.textContent = `#${this.rankings.length + 1}: ${poiName}`;
-  document.querySelector(".div4 ul").appendChild(tempElement);
+      // Temporarily add the option to the DOM for the animation
+      const tempElement = document.createElement("li");
+      tempElement.id = `temp-${poiName}`;
+      tempElement.textContent = `#${this.rankings.length + 1}: ${poiName}`;
+      document.querySelector(".div4 ul").appendChild(tempElement);
 
-  this.$nextTick(() => {
-    const resultElement = document.getElementById(`temp-${poiName}`);
+      this.$nextTick(() => {
+        const resultElement = document.getElementById(`temp-${poiName}`);
 
-    if (resultElement) {
-      const resultRect = resultElement.getBoundingClientRect();
-      
-      const floatingOption = document.createElement("div");
-      floatingOption.textContent = poiName;
-      floatingOption.style.position = "absolute";
-      floatingOption.style.left = "50%";
-      floatingOption.style.top = "50%";
-      floatingOption.style.transform = "translate(-50%, -50%) scale(2)";
-      // floatingOption.style.background = "white";
-      floatingOption.style.left = `${startX}px`; // Set the starting X position
-      floatingOption.style.top = `${startY}px`; // Set the starting Y position
-      floatingOption.style.padding = "10px 15px";
-      floatingOption.style.borderRadius = "20px";
-      floatingOption.style.boxShadow = "0px 4px 10px rgba(0, 0, 0, 0.2)";
-      floatingOption.style.zIndex = "1000";
-      floatingOption.style.fontSize = "36px";
-      floatingOption.style.fontWeight = "bold";
-      floatingOption.style.fontFamily = "Helvetica";
-      floatingOption.style.color = "white";
-      floatingOption.style.opacity = "0";
-      document.body.appendChild(floatingOption);
+        if (resultElement) {
+          const resultRect = resultElement.getBoundingClientRect();
+          
+          const floatingOption = document.createElement("div");
+          floatingOption.textContent = poiName;
+          floatingOption.style.position = "absolute";
+          floatingOption.style.left = "50%";
+          floatingOption.style.top = "50%";
+          floatingOption.style.transform = "translate(-50%, -50%) scale(2)";
+          floatingOption.style.left = `${startX}px`; // Set the starting X position
+          floatingOption.style.top = `${startY}px`; // Set the starting Y position
+          floatingOption.style.padding = "10px 15px";
+          floatingOption.style.borderRadius = "20px";
+          floatingOption.style.boxShadow = "0px 4px 10px rgba(0, 0, 0, 0.2)";
+          floatingOption.style.zIndex = "1000";
+          floatingOption.style.fontSize = "36px";
+          floatingOption.style.fontWeight = "bold";
+          floatingOption.style.fontFamily = "Helvetica";
+          floatingOption.style.color = "white";
+          floatingOption.style.opacity = "0";
+          document.body.appendChild(floatingOption);
 
-      gsap.to(floatingOption, {
-        x: resultRect.left - startX + resultRect.width / 2,
-        y: resultRect.top - startY + resultRect.height / 2,
-        scale: 1,
-        opacity: 1,
-        duration: 1.5,
-        ease: "power2.out",
-        onComplete: () => {
-          document.body.removeChild(floatingOption);
-          resultElement.remove();
+          gsap.to(floatingOption, {
+            x: resultRect.left - startX + resultRect.width / 2,
+            y: resultRect.top - startY + resultRect.height / 2,
+            scale: 1,
+            opacity: 1,
+            duration: 1.5,
+            ease: "power2.out",
+            onComplete: () => {
+              document.body.removeChild(floatingOption);
+              resultElement.remove();
 
-          gsap.fromTo(
-            resultElement,
-            { scale: 1.2 },
-            { scale: 1, duration: 0.1, ease: "elastic.out(1, 0.5)" }
-          );
-          this.optionSelected(poiName);
-        },
+              gsap.fromTo(
+                resultElement,
+                { scale: 1.2 },
+                { scale: 1, duration: 0.1, ease: "elastic.out(1, 0.5)" }
+              );
+              this.optionSelected(poiName);
+            },
+          });
+        }
       });
-    }
-  });
-},
-
-    startCountdown(){
+    },
+    startCountdown() {
       this.countdownId = setInterval(() => {
         if (this.countdown == 0){
           clearInterval(this.countdownId);
@@ -350,7 +453,6 @@ export default {
         }
       }, 1000);
     },
-
     startTimer() {
       this.timerId = setInterval(() => {
         if (this.seconds === 0) {
@@ -366,7 +468,6 @@ export default {
         }
       }, 1000);
     },
-
     resetRound() {
       this.stopTimer();
       this.mouseEnabled = false;
@@ -382,23 +483,17 @@ export default {
         this.resetTimer(); // Reset and start the timer for the next round
         this.roundInProgress = true;
         this.showPopup = false;
-        // this.mouseEnabled = true;
-        // this.roundReady = true;
       }, 3000);
-
     },
-
     resetTimer() {
       this.minutes = 0; // Reset to 1 minute
       this.seconds = 30;
       this.startTimer(); // Start the timer again
     },
-
     stopTimer() {
       clearInterval(this.timerId); // Stop the current timer
     },
-
-    sendCoordsToServer(){
+    sendCoordsToServer() {
       if (!this.intervalId) {
         this.intervalId = setInterval(() => {
           if (this.socket && this.mouseEnabled) {
@@ -407,11 +502,11 @@ export default {
         }, 100);
       }
     },
-
     setupSocket() {
       this.socket = getSocket();
 
       console.log('Swarming socket ID :', this.socket.id);
+      this.currentRoom = "tutorial" + this.socket.id;
       this.socket.emit('connection-data', {radius: this.radius, centre: this.centre});
       this.socket.emit('puck-coordinates-data', {poiCoords: this.pois, room: this.currentRoom});
 
@@ -441,15 +536,12 @@ export default {
         }
       });
     },
-
     lerp(start, end, t) {
       return start + (end - start) * t; 
     },
-    
     preventTouchMove(event) {
       event.preventDefault();
     },
-
     animatePuck() {
       const lerpFactor = 0.08; // Adjust for smoothness (lower is smoother)
       this.puckPosition.x = this.lerp(this.puckPosition.x, this.targetPuckPosition.x, lerpFactor);
@@ -457,48 +549,39 @@ export default {
       requestAnimationFrame(this.animatePuck); // Call again for the next frame
     },  
   },
-
   mounted() {
-    document.addEventListener("touchmove", this.preventTouchMove, { passive: false }); // Prevent scrolling when touching the screen
+    document.addEventListener("touchmove", this.preventTouchMove, { passive: false });
 
-    this.options = this.$route.params.titles;
-    this.ids = this.$route.params.ids;
+    this.options = ["football", "tennis", "padel", "cricket"];
+    this.ids = [1, 2, 3, 4];
     this.firstName = this.$route.params.firstName;
     this.lastName = this.$route.params.lastName;
-    this.currentRoom = this.$route.params.currentRoom;
 
     this.setupSocket();
-    if (this.options.length === 4) {
-      this.showPopup = true;
-      this.mouseEnabled = false;
-      this.startCountdown();
+    // if (this.options.length === 4) {
+    //   this.showPopup = true;
+    //   this.mouseEnabled = false;
+    //   this.startCountdown();
 
-      setTimeout(() => {
-        this.showPopup = false;
-      }, 3000);
+    //   setTimeout(() => {
+    //     this.showPopup = false;
+    //   }, 3000);
+    // }
 
-    }
-
-    this.startTimer();
-    this.sendCoordsToServer();
+    // this.sendCoordsToServer();
   },
-
   beforeDestroy() {
     document.removeEventListener("touchmove", this.preventTouchMove, { passive: false });
   },
 };
 </script>
-<style scoped>
 
+<style scoped>
 .container {
   justify-content: center;
   align-items: center;
   background: radial-gradient(50% 50% at 50% 50%, rgb(80, 140, 155) 0%, rgb(19, 75, 112) 100%);
   font-family: 'Helvetica', 'Arial', sans-serif;
-}
-
-.container h1, .container h2, .container h3, .container p, .container li, .container text {
-  color: #EEEEEE;
 }
 
 .room-id {
@@ -592,7 +675,43 @@ div h3 {
   color: black;
 }
 
-/* RESPONSIVENESS */
+.tutorial-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  z-index: 1000;
+  cursor: pointer;
+}
+
+.tutorial-content {
+  background: rgba(0, 0, 0, 0.8);
+  padding: 16px;
+  border-radius: 8px;
+  color: white;
+  max-width: 300px;
+  text-align: center;
+  position: absolute;
+  top: 20px; /* Position content at the top of the screen */
+  left: 50%;
+  transform: translateX(-50%); /* Center horizontally */
+  z-index: 1001;
+}
+
+.tutorial-arrow {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  transform-origin: center;
+}
+
+
+
+/* Responsiveness */
 @media (max-width: 1024px) {
   .parent {
     grid-template-columns: repeat(3, 1fr);
@@ -683,42 +802,41 @@ div h3 {
   }
 
   .div3 {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: radial-gradient(50% 50% at 50% 50%, rgb(80, 140, 155) 0%, rgb(19, 75, 112) 100%);
-  height: 100%;
-  width: 100%;
-}
-
-#joystick-container {
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  width: 100px;
-  height: 100px;
-  /* background-color: rgba(255, 255, 255, 0.1); Ensure the container is visible */
-}
-
-svg {
-  width: 70vw; /* The width of the SVG relative to the viewport */
-  height: 70vw; /* Keep it square for the circle */
-  max-width: 500px; /* Limit the size for larger screens */
-  max-height: 500px;
-}
-
-@media (max-width: 768px) {
-  svg {
-    width: 80vw; /* Increase size for smaller screens */
-    height: 80vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(50% 50% at 50% 50%, rgb(80, 140, 155) 0%, rgb(19, 75, 112) 100%);
+    height: 100%;
+    width: 100%;
   }
-}
 
-@media (max-width: 480px) {
-  svg {
-    width: 90vw; /* Further adjust for small screens */
-    height: 90vw;
+  #joystick-container {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    width: 100px;
+    height: 100px;
   }
-}
+
+  svg {
+    width: 70vw;
+    height: 70vw;
+    max-width: 500px;
+    max-height: 500px;
+  }
+
+  @media (max-width: 768px) {
+    svg {
+      width: 80vw;
+      height: 80vw;
+    }
+  }
+
+  @media (max-width: 480px) {
+    svg {
+      width: 90vw;
+      height: 90vw;
+    }
+  }
 }
 </style>
