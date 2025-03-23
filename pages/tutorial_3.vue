@@ -357,24 +357,22 @@
           //     currentRoom: this.currentRoom
           //   }
           // });
-          if (this.options.length === 1) {
-            this.rankings.push(this.options[0]); // This is the ranked list
-            // this.resultsIds.push(this.ids[0]);
-  
-            this.options = [];
-  
-            this.$router.push({
-              name: 'tutorial_4',
-              params: {
-                results: JSON.stringify(this.rankings),
-                firstName: this.firstName,
-                lastName: this.lastName,
-                currentRoom: this.currentRoom
-              }
-            });
-          } else {
-            this.resetRound();
-          }
+
+          this.rankings.push(this.options[0]); // This is the ranked list
+          // this.resultsIds.push(this.ids[0]);
+
+          this.options = [];
+
+          this.$router.push({
+            name: 'tutorial_4',
+            params: {
+              results: JSON.stringify(this.rankings),
+              firstName: this.firstName,
+              lastName: this.lastName,
+              currentRoom: this.currentRoom
+            }
+          });
+          
           this.socket.emit('puck-coordinates-data', {poiCoords: this.pois, room: this.currentRoom});
         }
       },
