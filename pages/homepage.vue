@@ -16,6 +16,7 @@
       <button v-if="isAdmin" class="add-new-poi-button" @click="addNewPOI">Voeg nieuwe informatie toe</button>
       <button v-if="isAdmin" class="delete-all-pois" @click="showDeleteWarning">Delete All Information</button>
       <button v-if="isAdmin" class="leaderboard" @click="goToLeaderboard">Leaderbord krijgen</button>
+      <button v-if="isAdmin" class="changeSwarmSize" @click="changeSwarmSize">Change Swarm Size</button>
     </div>
     
     <div v-if="deleteWarning" class="modal-overlay">
@@ -28,6 +29,15 @@
         <button @click="cancelDeleteWarning">Annuleren</button>
       </div>
     </div>
+
+    <div v-if="showChangeSwarmSize" class="modal-overlay">
+      <div class="modal-content">
+        <h2>Put in the new swarm size</h2>
+        <input type="number" v-model="adminSwarmSize" placeholder="Enter new swarm size" />
+        <button @click="swarmSizeChanged">OK</button>
+      </div>
+    </div>
+
     <!-- Popup Modal for Waiting Room -->
     <div v-if="showPopup" class="modal-overlay">
       <div class="modal-content">
@@ -49,6 +59,8 @@ export default {
     return {
       showPopup: false,  // To control the popup visibility
       deleteWarning: false, // To control the delete warning visibility
+      showChangeSwarmSize: false, // To control the change swarm size visibility
+      adminSwarmSize: 1,
       connectedUsers: 0, // Track the number of connected users
       socket: null,
       firstName: '',
@@ -109,6 +121,16 @@ export default {
       this.socket.emit('delete-all-pois');
       this.deleteWarning = false;  // Close the delete warning popup
     },
+
+    changeSwarmSize() {
+      this.showChangeSwarmSize = true;  // Show the change swarm size popup
+    },
+    swarmSizeChanged() {
+      this.socket.emit('change-swarm-size', this.adminSwarmSize);
+      this.showChangeSwarmSize = false;  // Close the change swarm size popup
+    },
+
+
     setupSocket() {
 
 
@@ -122,9 +144,9 @@ export default {
         this.connectedUsers = data;
       });
 
-      this.socket.on('pois-deleted', () => {
-        alert('Deleted all data!');
-      });
+      // this.socket.on('pois-deleted', () => {
+      //   alert('Deleted all data!');
+      // });
 
       // Once enough users have joined, redirect to the poi page
       this.socket.on('start-swarming', (payload) => {
