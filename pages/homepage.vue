@@ -12,12 +12,22 @@
       <!-- <button v-if="isAdmin" class="how-to-swarm-button" @click="howToSwarm">Hoe werkt het?</button> -->
       <button v-if="!isAdmin" class="tutorial-button" @click="goToTutorial">Tutorial</button>
       <button v-if="!isAdmin" class="join-swarm" @click="joinRandomSwarm">Join swarm</button>
-
       
       <button v-if="isAdmin" class="add-new-poi-button" @click="addNewPOI">Voeg nieuwe informatie toe</button>
+      <button v-if="isAdmin" class="delete-all-pois" @click="showDeleteWarning">Delete All Information</button>
       <button v-if="isAdmin" class="leaderboard" @click="goToLeaderboard">Leaderbord krijgen</button>
     </div>
-
+    
+    <div v-if="deleteWarning" class="modal-overlay">
+      <div class="modal-content">
+        <h2>Are you sure you want to delete the data?</h2>
+        <!-- <p>Verbonden gebruikers in {{ currentRoom }}: {{ connectedUsers }}</p> -->
+        <p>Once you do this, this cannot be undone</p>
+        <!-- <p>De Swarm zal beginnen als we 5 mensen hebben</p> -->
+        <button class="cancel-button" @click="deleteAllPOI">Ja, verwijder alles</button>
+        <button @click="cancelDeleteWarning">Annuleren</button>
+      </div>
+    </div>
     <!-- Popup Modal for Waiting Room -->
     <div v-if="showPopup" class="modal-overlay">
       <div class="modal-content">
@@ -38,6 +48,7 @@ export default {
   data() {
     return {
       showPopup: false,  // To control the popup visibility
+      deleteWarning: false, // To control the delete warning visibility
       connectedUsers: 0, // Track the number of connected users
       socket: null,
       firstName: '',
@@ -87,6 +98,17 @@ export default {
         params: { firstName: this.firstName, lastName: this.lastName }
       });  
     },
+    
+    showDeleteWarning() {
+      this.deleteWarning = true;  // Show the delete warning popup
+    },
+    cancelDeleteWarning() {
+      this.deleteWarning = false;  // Close the delete warning popup
+    },
+    deleteAllPOI() {
+      this.socket.emit('delete-all-pois');
+      this.deleteWarning = false;  // Close the delete warning popup
+    },
     setupSocket() {
 
 
@@ -98,6 +120,10 @@ export default {
 
       this.socket.on('update-user-ready-client', (data) => {
         this.connectedUsers = data;
+      });
+
+      this.socket.on('pois-deleted', () => {
+        alert('Deleted all data!');
       });
 
       // Once enough users have joined, redirect to the poi page
@@ -224,6 +250,7 @@ button:hover {
   padding: 10px 20px;
   font-size: 16px;
   margin-top: 20px;
+  margin-bottom: 5px;
   cursor: pointer;
   border-radius: 5px;
 }
