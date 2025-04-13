@@ -16,6 +16,7 @@
 </template>
 
 <script>
+import { createConnection } from '../utils/socket';
 export default {
   data() {
     return {
@@ -37,7 +38,19 @@ export default {
         alert("Vul alle verplichte velden in.");
       }
     },
+    setupSocket() {
+      // Listen for disconnect
+      this.socket.on('disconnect', (reason) => {
+        this.socket.disconnect();
+        // console.log('Disconnected from server');
+      });
+    }
   },
+  mounted() {
+    // Set up the socket connection when the component is mounted
+    this.socket = createConnection();
+    this.setupSocket();
+  }
 };
 </script>
 

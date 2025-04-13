@@ -52,7 +52,8 @@
 </template>
 
 <script>
-import { createConnection } from '../utils/socket';
+// import { createConnection } from '../utils/socket';
+import { getSocket } from '../utils/socket';
 
 export default {
   data() {
@@ -132,8 +133,7 @@ export default {
 
 
     setupSocket() {
-
-
+      this.socket = getSocket();
       // Listen for updates to the user count in the current room
       this.socket.on('update-room-user-count', (data) => {
         this.currentRoom = data.room;
@@ -174,10 +174,10 @@ export default {
   },
   mounted() {
     // Set up the socket connection when the component is mounted
-    this.socket = createConnection();
+    // this.socket = createConnection();
+    this.setupSocket();
     this.firstName = this.$route.params.firstName;
     this.lastName = this.$route.params.lastName;
-    this.setupSocket();
     if (this.firstName !== 'admin' && this.lastName !== 'admin'){
       // this.joinRandomSwarm();
     } else {
